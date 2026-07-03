@@ -1,0 +1,3 @@
+# TCR–pMHC-II ensemble docking
+
+This repository contains the necessary code for TCR–pMHC-II docking as described in the manuscript. The `data/` folder contains processed TCR–pMHC-II crystal structures (`data/mhcii_tcr_templates/`) as well as PANDORA 2.0-generated homology models of the corresponding pMHC-II complexes (`data/mhcii_models/`). The provided scripts can be used to conduct peptide conformation sampling, HADDOCK3 setup and post-processing, and docked ensemble scoring. Notebooks can be used to recreate analyses found in the manuscript. Detailed guides to the `scripts/` and `notebooks/` folders will be added shortly.

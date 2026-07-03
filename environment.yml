@@ -1,0 +1,27 @@
+name: pmhclib
+channels:
+  - conda-forge
+  - defaults
+  - https://conda.graylab.jhu.edu
+  - pytorch
+  - schrodinger
+dependencies:
+  - python=3.10
+  - pymol-open-source
+  - pyrosetta
+  - pip
+  - pip:
+    - biopandas
+    - biopython
+    - fair-esm
+    - flake8
+    - freesasa
+    - nbformat>=4.2.0
+    - networkx
+    - numpy==1.26.4
+    - pandas
+    - plotly
+    - scikit-learn
+    - scipy
+    - torch==1.13.1
+    - tqdm

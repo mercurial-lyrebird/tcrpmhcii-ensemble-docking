@@ -1,0 +1,17 @@
+
+import os
+
+from .constants import (
+    DEFAULT_STORE, DEFAULT_PDB_STORE, DEFAULT_FASTA_STORE, DEFAULT_TRAJ_STORE,
+    IMGTHLA_STORE, IMGTHLA_FASTA_STORE
+)
+
+
+dirs = [
+    DEFAULT_STORE, DEFAULT_PDB_STORE, DEFAULT_FASTA_STORE, DEFAULT_TRAJ_STORE,
+    IMGTHLA_STORE, IMGTHLA_FASTA_STORE
+]
+
+
+for dir in dirs:
+    os.makedirs(dir, exist_ok=True)
