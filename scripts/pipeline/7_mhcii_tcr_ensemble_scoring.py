@@ -13,7 +13,7 @@ from pmhclib.modeling import Ensemble
 from pmhclib.modeling.scoring import RMSDScorer, DockQScorer, RosettaScorer
 
 
-DOCKING_METHODS = ["haddock3_rigidbody"]
+DOCKING_METHODS = ["haddock3_rigidbody", "haddock3_flexref"]
 
 
 def process_ensemble(x: Tuple[str, str, str]):
@@ -113,4 +113,5 @@ if __name__ == "__main__":
 
     pdb_id = sys.argv[1]
     sampling_method = sys.argv[2]
-    process_ensemble((pdb_id, sampling_method, "haddock3_rigidbody"))
+    docking_method = sys.argv[3]
+    process_ensemble((pdb_id, sampling_method, docking_method))
