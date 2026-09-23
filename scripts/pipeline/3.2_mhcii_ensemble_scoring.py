@@ -12,7 +12,7 @@ from pmhclib.modeling import Ensemble
 from pmhclib.modeling.scoring import RMSDScorer, DockQScorer, RosettaScorer
 
 
-SAMPLING_METHODS = ["annealing", "pandora2", "amber"]
+SAMPLING_METHODS = ["amber", "annealing", "pandora2"]
 FN_PATTERNS = {
     "amber": "*_frame_*.pdb",
     "annealing": "conf_*.pdb",

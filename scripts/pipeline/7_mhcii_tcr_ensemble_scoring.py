@@ -1,7 +1,4 @@
 
-from glob import glob
-from itertools import product
-from multiprocessing import Pool
 import os
 import sys
 from typing import Tuple
@@ -11,9 +8,6 @@ import pandas as pd
 from pmhclib.components.pmhc import TCRpMHCII
 from pmhclib.modeling import Ensemble
 from pmhclib.modeling.scoring import RMSDScorer, DockQScorer, RosettaScorer
-
-
-DOCKING_METHODS = ["haddock3_rigidbody"]
 
 
 def process_ensemble(x: Tuple[str, str, str]):
@@ -32,6 +26,7 @@ def process_ensemble(x: Tuple[str, str, str]):
     )
     ensemble_id = "__".join([pdb_id, sampling_method.replace("/", "_"), docking_method])
     ensemble = Ensemble.from_pdb_dir(ensemble_id, ensemble_dir)
+    print(ensemble.ids)
 
     if not os.path.exists(ensemble_dir):
         print(f"{ensemble_dir} not found")
@@ -113,4 +108,5 @@ if __name__ == "__main__":
 
     pdb_id = sys.argv[1]
     sampling_method = sys.argv[2]
-    process_ensemble((pdb_id, sampling_method, "haddock3_rigidbody"))
+    docking_method = sys.argv[3]
+    process_ensemble((pdb_id, sampling_method, docking_method))

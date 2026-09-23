@@ -12,6 +12,7 @@ if __name__ == "__main__":
 
     pdb_id = sys.argv[1]
     init_model_dir = sys.argv[2]
+    ens_id = sys.argv[3] if len(sys.argv) == 4 else "annealing"
 
     init_model = pMHCII(fp=os.path.join(init_model_dir, f"{pdb_id}.pdb"))
 
@@ -29,7 +30,7 @@ if __name__ == "__main__":
             "n_iter": 1000
         },
         os.path.join(
-            "../../data/mhcii_ensembles/", pdb_id, "annealing"
+            "../../data/mhcii_ensembles/", pdb_id, ens_id
         ),
-        f"{pdb_id}__annealing", n_proc=4
+        f"{pdb_id}__{ens_id}", n_proc=16
     )
