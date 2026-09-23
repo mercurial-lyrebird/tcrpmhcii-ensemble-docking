@@ -176,12 +176,6 @@ if __name__ == "__main__":
         record["peptide_len"] = len(record["peptide_seq"])
         record["species"] = meta_df.loc[pdb_id].species
         record["allotype"] = meta_df.loc[pdb_id].allotype
-        # anchors = predict_anchors_netMHCIIpan(
-        #     record["peptide_seq"], record["allotype"], "."
-        # )
-        # anchors = [
-        #     int(anch) for anch in pandora_df.loc[pdb_id].anchors.split(";")
-        # ]
         template = TCRpMHCII(f"../../data/mhcii_tcr_templates/{pdb_id}.pdb")
         template.pmhc.estimate_anchors()
         anchors = template.pmhc.anchors

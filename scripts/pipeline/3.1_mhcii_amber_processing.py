@@ -25,29 +25,27 @@ def rechain_amber_frames(model: Complex, reference: pMHCII) -> pMHCII:
     mhc_b_seq = str(reference.mhc.beta_chain.sequence)
     pep_seq = str(reference.peptide.sequence)
 
-    mhc_chain = Chain.from_complex(model, chain_id="X")
-    pep_chain = Chain.from_complex(model, chain_id="P")
-    mhc_seq = str(mhc_chain.sequence)
-    pep_seq = str(pep_chain.sequence)
+    chain = Chain.from_complex(model, chain_id="A")
+    seq = str(chain.sequence)
 
-    mhc_a_seq_clipped = clip(mhc_a_seq, mhc_seq)
-    mhc_b_seq_clipped = clip(mhc_b_seq, mhc_seq)
-    pep_seq_clipped = clip(pep_seq, pep_seq)
+    mhc_a_seq_clipped = clip(mhc_a_seq, seq)
+    mhc_b_seq_clipped = clip(mhc_b_seq, seq)
+    pep_seq_clipped = clip(pep_seq, seq)
 
-    mhc_a_seq_i = mhc_seq.find(mhc_a_seq_clipped)
-    mhc_b_seq_i = mhc_seq.find(mhc_b_seq_clipped)
-    pep_seq_i = pep_seq.find(pep_seq_clipped)
+    mhc_a_seq_i = seq.find(mhc_a_seq_clipped)
+    mhc_b_seq_i = seq.find(mhc_b_seq_clipped)
+    pep_seq_i = seq.find(pep_seq_clipped)
 
     cmd.load(model.fp, model.id)
-    for chain_id in ["X"]:
+    for chain_id in ["A"]:
         stored.resi = 1
         stored.dict = dict()
         cmd.iterate(f"(chain {chain_id} & name CA)", "stored.dict[(chain, resi, resn)] = stored.resi; stored.resi += 1")
         cmd.alter(f"chain {chain_id}", "resi=str(stored.dict[(chain, resi, resn)])")
 
-    cmd.alter(f"(chain X & resi {mhc_a_seq_i + 1}-{mhc_a_seq_i + len(mhc_a_seq_clipped)})", "chain='M'")
-    cmd.alter(f"(chain X & resi {mhc_b_seq_i + 1}-{mhc_b_seq_i + len(mhc_b_seq_clipped)})", "chain='N'")
-    cmd.alter(f"(chain P & resi {pep_seq_i + 1}-{pep_seq_i + len(pep_seq_clipped)})", "chain='P'")
+    cmd.alter(f"(chain A & resi {mhc_a_seq_i + 1}-{mhc_a_seq_i + len(mhc_a_seq_clipped)})", "chain='M'")
+    cmd.alter(f"(chain A & resi {mhc_b_seq_i + 1}-{mhc_b_seq_i + len(mhc_b_seq_clipped)})", "chain='N'")
+    cmd.alter(f"(chain A & resi {pep_seq_i + 1}-{pep_seq_i + len(pep_seq_clipped)})", "chain='P'")
 
     for chain_id in ["M", "N", "P"]:
         stored.resi = 1
@@ -55,11 +53,11 @@ def rechain_amber_frames(model: Complex, reference: pMHCII) -> pMHCII:
         cmd.iterate(f"(chain {chain_id} & name CA)", "stored.dict[(chain, resi, resn)] = stored.resi; stored.resi += 1")
         cmd.alter(f"chain {chain_id}", "resi=str(stored.dict[(chain, resi, resn)])")
 
+    cmd.delete(f"chain A")
     cmd.save(model.fp, model.id)
     cmd.delete(model.id)
 
-    mhc_chain.delete()
-    pep_chain.delete()
+    chain.delete()
 
     return pMHCII(model.fp)
 
@@ -78,7 +76,7 @@ if __name__ == "__main__":
     template = pMHCII(template_pdb_fp)
     models = Ensemble.from_pdb_dir(pdb_id, amber_dir)
 
-    for id in tqdm(models.ids):
+    for i, id in tqdm(list(enumerate(models.ids))):
         model = Complex(models.id_to_fp[id], id=id)
         model = rechain_amber_frames(model, template)
         shutil.copy(model.fp, dest_dir)

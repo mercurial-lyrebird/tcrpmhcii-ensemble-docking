@@ -1,6 +1,5 @@
 
 from argparse import ArgumentParser
-from glob import glob
 import os
 import shutil
 
@@ -27,12 +26,11 @@ if __name__ == "__main__":
     parser.add_argument("-m", "--n_refine", default=None)
     parser.add_argument("-x", "--model_id", default="model")
     parser.add_argument("-a", "--anchors", default=None)
-    parser.add_argument("-d", "--docking_dir", default="../../haddock3_cdr3/")
     arguments = parser.parse_args()
 
     pdb_id = arguments.pdb_id
     id = pdb_id
-    output_dir_prefix = os.path.join(arguments.docking_dir, pdb_id)
+    output_dir_prefix = os.path.join("../../haddock3_cdr3/", pdb_id)
 
     template_df = pd.read_csv("../../data/mhcii_tcr_templates.csv", index_col="pdb_id")
     template_record = template_df.loc[pdb_id]
@@ -76,39 +74,39 @@ if __name__ == "__main__":
         output_dir = arguments.output_dir
 
     os.makedirs(output_dir)
-    shutil.copy("dock.cfg", output_dir)
     shutil.copy(tcr.fp, os.path.join(output_dir, "_tcr.pdb"))
 
-    if arguments.sampling_method is not None:
-        for i, pdb_fp in enumerate(glob(os.path.join("../../data/mhcii_ensembles/", pdb_id, sampling_method, PDB_PATTERNS.get(sampling_method, "conf_*.pdb")))):
-            shutil.copy(pdb_fp, os.path.join(output_dir, f"_pmhc_{i}.pdb"))
-            pwd = os.getcwd()
-            os.chdir(output_dir)
-            os.system(f"pdb_chain -R _pmhc_{i}.pdb | pdb_reres -1 > pmhc_{i}.pdb")
-            if i == 0:
-                pmhc_model = pMHCII("_pmhc_0.pdb", id=f"{id}__pmhc")
-                os.system(f"pdb_chain -L _tcr.pdb | pdb_reres -1 > tcr.pdb")
-                pmhc_merged = Chain("pmhc_0.pdb", id=f"{id}__pmhc_merged")
-                tcr_merged = Chain("tcr.pdb", id=f"{id}__tcr_merged")
-            os.chdir(pwd)
-        os.chdir(output_dir)
-        os.system(" ".join(["pdb_mkensemble", "pmhc_*.pdb", ">", "pmhc.pdb"]))
+    if pmhc is None:
+        os.system(
+            " ".join(
+                [
+                    "pdb_mkensemble",
+                    os.path.join(
+                        "../../data/mhcii_ensembles/", pdb_id, sampling_method,
+                        PDB_PATTERNS[sampling_method]
+                    ),
+                    ">", os.path.join(output_dir, "_pmhc.pdb")
+                ]
+            )
+        )
         pmhc = template.pmhc
     else:
         shutil.copy(pmhc.fp, os.path.join(output_dir, "_pmhc.pdb"))
-        pwd = os.getcwd()
-        os.chdir(output_dir)
-        pmhc_model = pMHCII("_pmhc.pdb", id=f"{id}__pmhc")
-        os.system("pdb_chain -R _pmhc.pdb | pdb_reres -1 > pmhc.pdb")
-        os.system("pdb_chain -L _tcr.pdb | pdb_reres -1 > tcr.pdb")
-        pmhc_merged = Chain("pmhc.pdb", id=f"{id}__pmhc_merged")
-        tcr_merged = Chain("tcr.pdb", id=f"{id}__tcr_merged")
 
+    shutil.copy("dock.cfg", output_dir)
+
+    pwd = os.getcwd()
+    os.chdir(output_dir)
+
+    pmhc_model = pMHCII("_pmhc.pdb", id=f"{id}__pmhc")
     print(pmhc_model.peptide.sequence)
+
+    os.system("pdb_chain -R _pmhc.pdb | pdb_reres -1 > pmhc.pdb")
+    os.system("pdb_chain -L _tcr.pdb | pdb_reres -1 > tcr.pdb")
+
+    pmhc_merged = Chain("pmhc.pdb", id=f"{id}__pmhc_merged")
     print(len(pmhc_merged))
-    print(pmhc_merged.sequence)
-    print(len(tcr_merged))
-    print(tcr_merged.sequence)
+    tcr_merged = Chain("tcr.pdb", id=f"{id}__tcr_merged")
 
     print(pmhc_merged.sequence.find(pmhc_model.mhc.alpha_chain.sequence))
     print(pmhc_merged.sequence.find(pmhc_model.mhc.beta_chain.sequence))
